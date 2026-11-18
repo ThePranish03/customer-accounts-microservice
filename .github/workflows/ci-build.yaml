@@ -12,18 +12,41 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    container:
+      image: python:3.11-slim
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: customer_accounts_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d customer_accounts_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      FLASK_APP: service.py
+      FLASK_ENV: testing
+      TESTING: "true"
+      DATABASE_URL: postgresql://test_user:test_password@postgres:5432/customer_accounts_test
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: customer_accounts_test
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      CORS_ORIGINS: http://localhost:3000
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install coverage pylint
       - name: Lint with Flake8
         run: flake8 service.py tests
       - name: Run unit tests
