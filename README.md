@@ -1,4 +1,4 @@
-# Customer Accounts Microservice
+# DevOps Capstone – Customer Accounts Microservice
 
 A Flask-based REST microservice for managing customer accounts. It provides create, list, retrieve, update, and delete operations with input validation, security headers, CORS configuration, automated tests, container packaging, Kubernetes resources, and a Tekton CI/CD pipeline.
 
@@ -36,8 +36,11 @@ curl http://localhost:5000/accounts
 ## Quality checks
 
 ```bash
-flake8 service tests
-nosetests
+flake8 service.py tests
+nosetests -v
+coverage run -m nose
+coverage report
+pylint service.py
 ```
 
 ## Container
@@ -53,12 +56,12 @@ Apply the resources in `kubernetes/` with `kubectl apply -f kubernetes/`. The De
 
 ## CI/CD
 
-GitHub Actions runs lint and unit tests on pushes and pull requests. A Tekton Pipeline definition is provided in `tekton/pipeline.yaml`.
+GitHub Actions runs lint and unit tests on pushes and pull requests. The workflow uses Python 3.11 and a PostgreSQL service container for a reproducible CI environment. A Tekton Pipeline definition is provided in `tekton/pipeline.yaml`.
 
 ## Security
 
-Talisman adds common browser security headers. CORS is configurable through `CORS_ORIGINS`; by default, cross-origin access is disabled. Set a comma-separated allowlist for approved front-end origins.
+Flask-Talisman adds common browser security headers. CORS is configurable through `CORS_ORIGINS`; by default, cross-origin access is disabled. Set a comma-separated allowlist for approved front-end origins.
 
 ## Project status
 
-Source files and deployment definitions are committed. CI, Docker, and Kubernetes execution status should be verified in the repository Actions tab and on a live cluster; configuration files alone do not establish a successful deployment.
+Source files and deployment definitions are committed. The CI badge reflects the latest workflow status; Docker and Kubernetes execution must be verified in the relevant runtime before reporting a successful deployment.
