@@ -24,8 +24,9 @@ def create_app(test_config=None):
         for item in os.environ.get("CORS_ORIGINS", "").split(",")
         if item.strip()
     ]
-    CORS(app, resources={r"/*": {"origins": origins}} if origins else {},
-         supports_credentials=False)
+    if origins:
+        CORS(app, resources={r"/*": {"origins": origins}},
+             supports_credentials=False)
     Talisman(
         app,
         force_https=not app.config.get("TESTING", False),
@@ -47,10 +48,13 @@ def create_app(test_config=None):
             return jsonify({"error": "Request body must be a JSON object"}), 400
         name = payload.get("name")
         email = payload.get("email")
+        status = payload.get("status", "active")
         if not isinstance(name, str) or not name.strip():
             return jsonify({"error": "name is required"}), 400
         if not isinstance(email, str) or "@" not in email:
             return jsonify({"error": "a valid email is required"}), 400
+        if status not in ("active", "inactive"):
+            return jsonify({"error": "status must be active or inactive"}), 400
         if any(row["email"].lower() == email.strip().lower()
                for row in _ACCOUNTS.values()):
             return jsonify({"error": "email already exists"}), 409
@@ -59,7 +63,7 @@ def create_app(test_config=None):
             "id": account_id,
             "name": name.strip(),
             "email": email.strip().lower(),
-            "status": payload.get("status", "active"),
+            "status": status,
         }
         _ACCOUNTS[account_id] = account
         return jsonify(account), 201
