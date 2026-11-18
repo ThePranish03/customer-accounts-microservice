@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "customer-accounts-microservice"
+version = "1.0.0"
+description = "REST API microservice for customer account management"
+requires-python = ">=3.10"
+dependencies = [
+  "Flask>=3.0,<4.0",
+  "flask-talisman>=1.1,<2.0",
+  "Flask-Cors>=4.0,<6.0",
+]
+
+[tool.setuptools]
+py-modules = ["service"]
