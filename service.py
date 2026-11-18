@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask_talisman import Talisman
+from __init__ import configure_security
 
 _ACCOUNTS = {}
 
@@ -27,15 +27,7 @@ def create_app(test_config=None):
     if origins:
         CORS(app, resources={r"/*": {"origins": origins}},
              supports_credentials=False)
-    Talisman(
-        app,
-        force_https=not app.config.get("TESTING", False),
-        content_security_policy={
-            "default-src": ["'self'"],
-            "object-src": ["'none'"],
-            "frame-ancestors": ["'none'"],
-        },
-    )
+    configure_security(app)
 
     @app.get("/health")
     def health():
