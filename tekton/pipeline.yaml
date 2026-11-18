@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: customer-accounts-ci
+spec:
+  params:
+    - name: git-url
+      type: string
+    - name: revision
+      type: string
+      default: main
+  workspaces:
+    - name: source
+  tasks:
+    - name: clone
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.revision)
+      workspaces:
+        - name: output
+          workspace: source
+    - name: quality
+      runAfter: [clone]
+      taskRef:
+        name: python-quality
+      workspaces:
+        - name: source
+          workspace: source
